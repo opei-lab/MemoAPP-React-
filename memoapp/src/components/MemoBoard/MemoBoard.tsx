@@ -26,6 +26,7 @@ interface Memo {
   position: number
   created_at: string
   updated_at: string
+  is_deleted?: boolean
 }
 
 type SortBy = 'created_at' | 'color' | 'position'
@@ -62,7 +63,7 @@ export const MemoBoard = ({ session }: MemoBoardProps) => {
     trashedMemos: [],
     sortBy: 'position',
     filterColor: null,
-    darkMode: false,
+    darkMode: localStorage.getItem('darkMode') === 'true',
     showTrash: false,
     isLoading: true,
   })
@@ -129,13 +130,23 @@ export const MemoBoard = ({ session }: MemoBoardProps) => {
   const loadMemos = useCallback(async () => {
     try {
       setState(prev => ({ ...prev, isLoading: true }))
-      const memos = await memoOps.fetchMemos()
-      setState(prev => ({ ...prev, memos, isLoading: false }))
+      const allMemos = await memoOps.fetchMemos()
+      
+      // is_deletedフラグが存在する場合は使用、存在しない場合は全てactiveとして扱う
+      const activeMemos = allMemos.filter(m => !m.is_deleted)
+      const deletedMemos = allMemos.filter(m => m.is_deleted === true)
+      
+      setState(prev => ({ 
+        ...prev, 
+        memos: activeMemos,
+        trashedMemos: deletedMemos,
+        isLoading: false 
+      }))
     } catch (error) {
       console.error('Failed to load memos:', error)
       setState(prev => ({ ...prev, isLoading: false }))
     }
-  }, [])
+  }, [memoOps])
 
   useEffect(() => {
     loadMemos()
@@ -179,34 +190,50 @@ export const MemoBoard = ({ session }: MemoBoardProps) => {
   }, [memoOps])
 
   // ゴミ箱への移動
-  const handleMoveToTrash = useCallback((id: string) => {
+  const handleMoveToTrash = useCallback(async (id: string) => {
+    // まずUIを即座に更新
     setState(prev => {
       const memo = prev.memos.find(m => m.id === id)
       if (memo) {
         return {
           ...prev,
           memos: prev.memos.filter(m => m.id !== id),
-          trashedMemos: [...prev.trashedMemos, memo]
+          trashedMemos: [...prev.trashedMemos, { ...memo, is_deleted: true }]
         }
       }
       return prev
     })
-  }, [])
+    
+    // その後、データベースの更新を試みる（is_deletedカラムがない場合はエラーになるが継続）
+    try {
+      await memoOps.updateMemo(id, { is_deleted: true })
+    } catch (error) {
+      console.warn('Note: is_deleted column may not exist in database. Trash state is only in memory.', error)
+    }
+  }, [memoOps])
 
   // ゴミ箱からの復元
-  const handleRestoreFromTrash = useCallback((id: string) => {
+  const handleRestoreFromTrash = useCallback(async (id: string) => {
+    // まずUIを即座に更新
     setState(prev => {
       const memo = prev.trashedMemos.find(m => m.id === id)
       if (memo) {
         return {
           ...prev,
           trashedMemos: prev.trashedMemos.filter(m => m.id !== id),
-          memos: [...prev.memos, memo]
+          memos: [...prev.memos, { ...memo, is_deleted: false }]
         }
       }
       return prev
     })
-  }, [])
+    
+    // その後、データベースの更新を試みる
+    try {
+      await memoOps.updateMemo(id, { is_deleted: false })
+    } catch (error) {
+      console.warn('Note: is_deleted column may not exist in database. Trash state is only in memory.', error)
+    }
+  }, [memoOps])
 
   // ゴミ箱を空にする
   const handleEmptyTrash = useCallback(async () => {
@@ -302,6 +329,23 @@ export const MemoBoard = ({ session }: MemoBoardProps) => {
     }
   }, [displayedMemos, handleMoveToTrash, memoOps, state.sortBy, loadMemos])
 
+  // ダークモードの切り替え時にhtml要素にもクラスを適用
+  useEffect(() => {
+    if (state.darkMode) {
+      document.documentElement.classList.add('dark')
+      document.body.classList.add('dark')
+      localStorage.setItem('darkMode', 'true')
+    } else {
+      document.documentElement.classList.remove('dark')
+      document.body.classList.remove('dark')
+      localStorage.setItem('darkMode', 'false')
+    }
+    // デバッグ用
+    console.log('Dark mode changed:', state.darkMode)
+    console.log('HTML classes:', document.documentElement.classList.toString())
+    console.log('Body classes:', document.body.classList.toString())
+  }, [state.darkMode])
+
   if (state.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
@@ -322,7 +366,10 @@ export const MemoBoard = ({ session }: MemoBoardProps) => {
           filterColor={state.filterColor}
           setFilterColor={(filterColor: FilterColor) => setState(prev => ({ ...prev, filterColor }))}
           darkMode={state.darkMode}
-          setDarkMode={(darkMode: boolean) => setState(prev => ({ ...prev, darkMode }))}
+          setDarkMode={(darkMode: boolean) => {
+            localStorage.setItem('darkMode', darkMode.toString())
+            setState(prev => ({ ...prev, darkMode }))
+          }}
           showTrash={state.showTrash}
           setShowTrash={(showTrash: boolean) => setState(prev => ({ ...prev, showTrash }))}
           trashCount={state.trashedMemos.length}
@@ -342,11 +389,13 @@ export const MemoBoard = ({ session }: MemoBoardProps) => {
             paddingRight: '2rem'
           }}
         >
-          <MemoForm 
-            onSubmit={handleCreateMemo} 
-            isOpen={showMemoForm}
-            onClose={() => setShowMemoForm(false)}
-          />
+          <div style={{ marginTop: '2rem' }}>
+            <MemoForm 
+              onSubmit={handleCreateMemo} 
+              isOpen={showMemoForm}
+              onClose={() => setShowMemoForm(false)}
+            />
+          </div>
           
           <DndContext
             sensors={sensors}

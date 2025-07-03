@@ -27,7 +27,8 @@ export const SearchBar = ({ value, onChange, resultCount }: SearchBarProps) => {
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`relative flex-1 max-w-md transition-all`}
+      className="relative transition-all"
+      style={{ width: '400px' }}
     >
       <div className="relative">
         <input
@@ -38,11 +39,23 @@ export const SearchBar = ({ value, onChange, resultCount }: SearchBarProps) => {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder="メモを検索... (Ctrl+F)"
-          className={`w-full pl-12 pr-12 py-3 bg-white/90 dark:bg-gray-800/90 rounded-2xl border transition-all text-sm shadow-sm hover:shadow-md ${
-            isFocused 
-              ? 'border-purple-500 ring-2 ring-purple-500/20' 
-              : 'border-gray-200 dark:border-gray-700'
-          }`}
+          className="w-full text-sm font-medium"
+          style={{
+            paddingLeft: '3rem',
+            paddingRight: '3rem',
+            paddingTop: '0.75rem',
+            paddingBottom: '0.75rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            borderRadius: '9999px',
+            border: isFocused ? '2px solid #667eea' : '1px solid rgba(0, 0, 0, 0.06)',
+            outline: 'none',
+            transition: 'all 0.3s ease',
+            boxShadow: isFocused 
+              ? '0 0 0 4px rgba(102, 126, 234, 0.1), 0 4px 15px rgba(102, 126, 234, 0.2)' 
+              : '0 2px 8px rgba(0, 0, 0, 0.08)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+          }}
         />
         
         {/* 検索アイコン */}

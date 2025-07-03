@@ -1,5 +1,4 @@
-import { memo, useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { memo } from 'react'
 
 interface MemoContentProps {
   title: string
@@ -9,38 +8,36 @@ interface MemoContentProps {
 export const MemoContent = memo(({ title, content }: MemoContentProps) => {
   
   return (
-    <motion.div 
-      className="w-full h-full overflow-hidden text-center"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+    <div 
+      className="w-full h-full overflow-hidden flex flex-col"
+      style={{
+        alignItems: 'stretch',
+      }}
     >
-      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 drop-shadow-sm overflow-hidden text-ellipsis mx-auto text-center" 
+      {/* タイトル部分 - ダークモード対応 */}
+      <h3 
+        className="text-xl font-bold text-gray-800 dark:text-gray-100"
         style={{
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          lineHeight: '1.4',
-          maxHeight: '2.4em',
-          wordBreak: 'break-word',
+          marginBottom: '1rem',
+          textAlign: 'center',
+          width: '100%',
+          display: 'block',
+          textShadow: 'none', // drop-shadowを削除
         }}
       >
         {title || '無題'}
       </h3>
       
-      <p className="text-gray-700 dark:text-gray-200 leading-relaxed overflow-hidden text-left"
+      <p 
+        className="text-gray-700 dark:text-gray-200 leading-relaxed line-clamp-3"
         style={{
-          display: '-webkit-box',
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: 'vertical',
-          lineHeight: '1.6',
-          maxHeight: '7.2em',
-          wordBreak: 'break-word',
+          textAlign: 'left',
+          width: '100%',
           whiteSpace: 'pre-wrap',
         }}
       >
         {content}
       </p>
-    </motion.div>
+    </div>
   )
 })

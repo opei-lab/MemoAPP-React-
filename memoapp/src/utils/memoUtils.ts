@@ -8,6 +8,7 @@ interface Memo {
   position: number
   created_at: string
   updated_at: string
+  is_deleted?: boolean
 }
 
 type SortBy = 'created_at' | 'color' | 'position'
@@ -44,6 +45,16 @@ const getHueFromHex = (hex: string): number => {
   return hue * 360 // 0-360度の色相を返す
 }
 
+// 色の優先度マップ（赤を最初に）
+const colorPriorityMap: Record<string, number> = {
+  '#FFB3BA': 0,  // ペールレッド
+  '#FFD4B3': 1,  // ペールオレンジ  
+  '#FFF5B3': 2,  // ペールイエロー
+  '#BAFFC9': 3,  // ペールグリーン
+  '#BAE1FF': 4,  // ペールブルー
+  '#E6BAFF': 5,  // ペールパープル
+}
+
 // メモのソート
 export const sortMemos = (memos: Memo[], sortBy: SortBy): Memo[] => {
   const sorted = [...memos]
@@ -54,11 +65,11 @@ export const sortMemos = (memos: Memo[], sortBy: SortBy): Memo[] => {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       )
     case 'color':
-      // 12色相環順にソート（赤→橙→黄→緑→青→紫の順）
+      // 定義された色順でソート
       return sorted.sort((a, b) => {
-        const hueA = getHueFromHex(a.color || '#000000')
-        const hueB = getHueFromHex(b.color || '#000000')
-        return hueA - hueB
+        const priorityA = colorPriorityMap[a.color] ?? 999
+        const priorityB = colorPriorityMap[b.color] ?? 999
+        return priorityA - priorityB
       })
     case 'position':
       return sorted.sort((a, b) => a.position - b.position)

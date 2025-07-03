@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../lib/supabase'
 
@@ -9,6 +9,12 @@ export const Auth = () => {
   const [isLogin, setIsLogin] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  
+  // ログイン画面では常にライトモード
+  useEffect(() => {
+    document.documentElement.classList.remove('dark')
+    document.body.classList.remove('dark')
+  }, [])
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,7 +57,8 @@ export const Auth = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative z-10 w-full max-w-md"
+        className="relative z-10 w-full"
+        style={{ maxWidth: '400px' }}
       >
         <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden">
           {/* ヘッダー */}
@@ -95,7 +102,26 @@ export const Auth = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:ring-opacity-30 transition-all duration-200"
+                className="w-full font-medium"
+                style={{
+                  padding: '0.875rem 1.25rem',
+                  borderRadius: '9999px',
+                  border: '2px solid rgba(229, 231, 235, 1)',
+                  backgroundColor: 'rgba(249, 250, 251, 0.5)',
+                  outline: 'none',
+                  transition: 'all 0.3s ease',
+                  fontSize: '0.95rem',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#667eea'
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 1)'
+                  e.currentTarget.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.1)'
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(229, 231, 235, 1)'
+                  e.currentTarget.style.backgroundColor = 'rgba(249, 250, 251, 0.5)'
+                  e.currentTarget.style.boxShadow = 'none'
+                }}
                 placeholder="example@email.com"
               />
             </div>
@@ -109,7 +135,26 @@ export const Auth = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:ring-opacity-30 transition-all duration-200"
+                className="w-full font-medium"
+                style={{
+                  padding: '0.875rem 1.25rem',
+                  borderRadius: '9999px',
+                  border: '2px solid rgba(229, 231, 235, 1)',
+                  backgroundColor: 'rgba(249, 250, 251, 0.5)',
+                  outline: 'none',
+                  transition: 'all 0.3s ease',
+                  fontSize: '0.95rem',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#667eea'
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 1)'
+                  e.currentTarget.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.1)'
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(229, 231, 235, 1)'
+                  e.currentTarget.style.backgroundColor = 'rgba(249, 250, 251, 0.5)'
+                  e.currentTarget.style.boxShadow = 'none'
+                }}
                 placeholder="6文字以上"
                 minLength={6}
               />
@@ -120,11 +165,31 @@ export const Auth = () => {
               disabled={loading}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`w-full py-4 rounded-xl font-medium text-white transition-all duration-200 ${
-                loading
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl'
-              }`}
+              className="w-full font-medium text-white"
+              style={{
+                padding: '1rem',
+                borderRadius: '9999px',
+                background: loading 
+                  ? '#9CA3AF'
+                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                boxShadow: loading 
+                  ? 'none'
+                  : '0 4px 15px rgba(102, 126, 234, 0.4)',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.5)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)'
+                }
+              }}
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -146,7 +211,22 @@ export const Auth = () => {
                   setError(null)
                   setSuccess(null)
                 }}
-                className="text-purple-600 hover:text-purple-700 font-medium transition-colors"
+                className="font-medium"
+                style={{
+                  color: '#667eea',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '9999px',
+                  backgroundColor: 'transparent',
+                  transition: 'all 0.3s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(102, 126, 234, 0.1)'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
               >
                 {isLogin ? '新規アカウント作成' : 'すでにアカウントをお持ちの方'}
               </button>

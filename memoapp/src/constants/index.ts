@@ -8,18 +8,15 @@ export const MEMO_COLORS = {
   purple: '#E6BAFF',      // ペールパープル
 } as const
 
-export const COLOR_OPTIONS = Object.entries(MEMO_COLORS).map(([name, value]) => ({
-  name,
-  value,
-  label: {
-    red: 'レッド',
-    orange: 'オレンジ',
-    yellow: 'イエロー',
-    green: 'グリーン',
-    blue: 'ブルー',
-    purple: 'パープル',
-  }[name] || name,
-}))
+// 色相環順の配列を明示的に定義
+export const COLOR_OPTIONS = [
+  { name: 'red', value: '#FFB3BA', label: 'レッド' },
+  { name: 'orange', value: '#FFD4B3', label: 'オレンジ' },
+  { name: 'yellow', value: '#FFF5B3', label: 'イエロー' },
+  { name: 'green', value: '#BAFFC9', label: 'グリーン' },
+  { name: 'blue', value: '#BAE1FF', label: 'ブルー' },
+  { name: 'purple', value: '#E6BAFF', label: 'パープル' },
+]
 
 // デフォルト値
 export const DEFAULT_MEMO_COLOR = MEMO_COLORS.yellow
@@ -48,6 +45,6 @@ export const LAYOUT_CONFIG = {
     wide: 4
   },
   gap: 8,
-  headerHeight: 160,
+  headerHeight: 210,
   cardMinHeight: 280
 } as const

@@ -1,7 +1,7 @@
 import { useState, memo } from 'react'
 import { motion } from 'framer-motion'
 import { COLOR_OPTIONS } from '../../constants'
-import { ColorButton } from '../ColorButton'
+import { SimpleColorButton } from '../SimpleColorButton'
 interface Memo {
   id: string
   user_id: string
@@ -75,13 +75,49 @@ export const MemoEditForm = memo(({
         <div className="flex gap-2">
           <button
             onClick={handleSave}
-            className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl text-white font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+            className="flex-1 font-bold"
+            style={{
+              padding: '0.75rem 1rem',
+              borderRadius: '9999px',
+              background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+              color: 'white',
+              boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)',
+              border: 'none',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.5)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.4)'
+            }}
           >
             保存する
           </button>
           <button
             onClick={onCancel}
-            className="px-4 py-3 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 rounded-xl text-gray-700 font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+            className="font-bold"
+            style={{
+              padding: '0.75rem 1.5rem',
+              borderRadius: '9999px',
+              backgroundColor: 'rgba(243, 244, 246, 0.9)',
+              color: '#374151',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+              border: '1px solid rgba(0, 0, 0, 0.06)',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(229, 231, 235, 0.9)'
+              e.currentTarget.style.transform = 'translateY(-1px)'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(243, 244, 246, 0.9)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)'
+            }}
           >
             キャンセル
           </button>
@@ -92,12 +128,12 @@ export const MemoEditForm = memo(({
           <p className="text-sm font-bold text-gray-700 mb-4 text-center">メモの色を選択</p>
           <div className="flex justify-center gap-4 flex-wrap">
             {COLOR_OPTIONS.map((option) => (
-              <ColorButton
+              <SimpleColorButton
                 key={option.name}
                 color={option.value}
                 isSelected={color === option.value}
                 onClick={() => setColor(option.value)}
-                size="lg"
+                size="xs"
                 title={option.label}
               />
             ))}

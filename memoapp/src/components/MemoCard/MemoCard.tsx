@@ -1,4 +1,4 @@
-import { useState, memo, forwardRef, useEffect, useRef } from 'react'
+import { useState, memo, forwardRef, useEffect, useRef, useMemo } from 'react'
 import { motion, useSpring, useTransform, useMotionValue, AnimatePresence } from 'framer-motion'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -29,10 +29,28 @@ interface MemoCardProps {
 }
 
 export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: memoData, onUpdate, onDelete, index }, ref) => {
+  const [isDarkMode, setIsDarkMode] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [showDetail, setShowDetail] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
+  
+  // ダークモードの状態を監視
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'))
+    }
+    checkDarkMode()
+    
+    // MutationObserverでクラスの変更を監視
+    const observer = new MutationObserver(checkDarkMode)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    })
+    
+    return () => observer.disconnect()
+  }, [])
   
   // ぷるんぷるんアニメーション用の状態
   const x = useMotionValue(0)
@@ -146,18 +164,20 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
           className="w-full h-[320px] cursor-pointer transition-all duration-300 relative overflow-visible"
           onClick={() => !isEditing && setShowDetail(true)}
           style={{
-            backgroundColor: memoData.color,
+            '--memo-color': memoData.color,
+            backgroundColor: 'var(--memo-color)',
             backgroundImage: `
-              radial-gradient(ellipse at top left, ${memoData.color}ff 0%, ${memoData.color}ee 50%)
+              radial-gradient(ellipse at top left, var(--memo-color) 0%, var(--memo-color) 50%)
             `,
             transform: 'translateZ(50px)',
             boxShadow: `
               inset 0 8px 32px rgba(255,255,255,0.6),
               inset 0 -8px 32px rgba(0,0,0,0.2),
               0 25px 50px -12px rgba(0,0,0,0.4),
-              0 15px 30px -8px ${memoData.color}80
+              0 15px 30px -8px var(--memo-color)
             `,
-          }}
+            filter: 'none',
+          } as React.CSSProperties}
           animate={{
             borderRadius: isHovered 
               ? `${60 + Math.sin(Date.now() * 0.003) * 5}% ${60 + Math.cos(Date.now() * 0.003) * 5}% ${20 + Math.sin(Date.now() * 0.004) * 3}% ${20 + Math.cos(Date.now() * 0.004) * 3}% / ${80 + Math.sin(Date.now() * 0.002) * 5}% ${80 + Math.cos(Date.now() * 0.002) * 5}% ${20 + Math.sin(Date.now() * 0.003) * 2}% ${20 + Math.cos(Date.now() * 0.003) * 2}%`
@@ -177,9 +197,9 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
                 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="w-6 h-8 bg-gray-800 rounded-full">
+                <div className="w-6 h-8 bg-gray-800 dark:bg-gray-200 rounded-full">
                   <motion.div 
-                    className="absolute top-2 left-2 w-2 h-2 bg-white rounded-full"
+                    className="absolute top-2 left-2 w-2 h-2 bg-white dark:bg-gray-800 rounded-full"
                     animate={{
                       x: Math.sin(Date.now() * 0.001) * 2,
                       y: Math.cos(Date.now() * 0.001) * 1,
@@ -194,9 +214,9 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
                 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="w-6 h-8 bg-gray-800 rounded-full">
+                <div className="w-6 h-8 bg-gray-800 dark:bg-gray-200 rounded-full">
                   <motion.div 
-                    className="absolute top-2 left-2 w-2 h-2 bg-white rounded-full"
+                    className="absolute top-2 left-2 w-2 h-2 bg-white dark:bg-gray-800 rounded-full"
                     animate={{
                       x: Math.sin(Date.now() * 0.001) * 2,
                       y: Math.cos(Date.now() * 0.001) * 1,
@@ -209,7 +229,7 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
             {/* 口 */}
             <div className="flex justify-center">
               <motion.div 
-                className="w-12 h-3 bg-gray-800 rounded-full"
+                className="w-12 h-3 bg-gray-800 dark:bg-gray-200 rounded-full"
                 animate={{
                   scaleX: isHovered ? 1.5 : 1,
                   scaleY: isHovered ? 2 : 1,
@@ -220,7 +240,7 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
           </div>
           
           {/* スライムの照り効果 */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ borderRadius: '60% 60% 20% 20% / 80% 80% 20% 20%' }}>
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {/* メインハイライト - ぷるんぷるんと連動 */}
             <motion.div 
               className="absolute top-2 left-3 w-24 h-16"
@@ -297,7 +317,22 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
           )}
 
           {/* コンテンツ */}
-          <div className="absolute bottom-12 left-16 right-16 top-[55%] z-10 flex flex-col overflow-hidden">
+          <div 
+            style={{
+              // classNameを完全に削除してstyleのみで制御
+              position: 'absolute',
+              zIndex: 10,
+              // 固定位置を使用してTailwindクラスの影響を排除
+              bottom: '48px',
+              left: '64px',
+              right: '64px',
+              top: '50%', // 55%から50%に変更
+              // 中央揃えを確実にするための追加スタイル
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
             {isEditing ? (
               <MemoEditForm
                 initialTitle={memoData.title}

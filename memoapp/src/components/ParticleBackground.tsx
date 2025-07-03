@@ -16,6 +16,7 @@ export const ParticleBackground = () => {
   const particlesRef = useRef<Particle[]>([])
   const animationRef = useRef<number>()
   const mouseRef = useRef({ x: 0, y: 0 })
+  const isDarkMode = document.documentElement.classList.contains('dark')
 
   useEffect(() => {
     const canvas = canvasRef.current

@@ -10,6 +10,7 @@ interface Memo {
   position: number
   created_at: string
   updated_at: string
+  is_deleted?: boolean
 }
 
 type MemoUpdate = Partial<Memo>

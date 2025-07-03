@@ -15,21 +15,16 @@ const sizeClasses = {
 export const ColorButton = ({ color, isSelected, onClick, size = 'md', title }: ColorButtonProps) => {
   return (
     <div
-      className={`memo-color-button relative ${sizeClasses[size]} rounded-2xl cursor-pointer transition-all hover:scale-105`}
+      className={`relative ${sizeClasses[size]} rounded-2xl cursor-pointer transition-all hover:scale-105`}
       onClick={onClick}
       title={title}
-      data-color-button="true"
       style={{
-        '--bg-color': color,
         backgroundColor: color,
         border: isSelected ? '4px solid #3B82F6' : '3px solid white',
         boxShadow: isSelected 
           ? '0 0 0 3px white, 0 0 0 6px #3B82F6'
           : '0 4px 15px rgba(0,0,0,0.15)',
-        backgroundImage: 'none',
-        backgroundSize: 'auto',
-        backgroundAttachment: 'initial',
-      } as React.CSSProperties}
+      }}
     >
       {isSelected && (
         <div className="absolute inset-0 flex items-center justify-center">
