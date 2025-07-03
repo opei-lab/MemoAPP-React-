@@ -58,7 +58,7 @@ export const MemoEditForm = memo(({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="w-full px-4 py-3 bg-white/90 rounded-xl text-gray-800 font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400 shadow-inner"
+        className="w-full px-4 py-3 bg-white/90 rounded-xl text-gray-800 font-semibold text-lg focus:outline-none placeholder-gray-400 shadow-inner"
         placeholder="タイトル"
         autoFocus
       />
@@ -67,7 +67,7 @@ export const MemoEditForm = memo(({
         value={content}
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="w-full px-4 py-3 bg-white/90 rounded-xl text-gray-700 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400 shadow-inner flex-1"
+        className="w-full px-4 py-3 bg-white/90 rounded-xl text-gray-700 resize-none focus:outline-none placeholder-gray-400 shadow-inner flex-1"
         placeholder="内容"
       />
       

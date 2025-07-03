@@ -35,6 +35,19 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
   const [showDetail, setShowDetail] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   
+  // メモのIDから顔のバリエーションを生成
+  const faceVariation = useMemo(() => {
+    const hash = memoData.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    return {
+      eyeGap: 50 + (hash % 20) * 2, // 目の間隔: 50-90 (さらに離す)
+      eyeSize: 24 + (hash % 8) * 2, // 目のサイズ: 24-38 (さらに大きく)
+      pupilSize: 14 + (hash % 6) * 2, // 瞳のサイズ: 14-24 (さらに大きく)
+      mouthWidth: 70 + (hash % 40), // 口の幅: 70-109 (さらに横長に)
+      mouthCurve: 25 + (hash % 15), // 口のカーブ: 25-39 (さらに深く)
+      eyeY: 70 + (hash % 15), // 目の位置: 70-84 (上半分に)
+    }
+  }, [memoData.id])
+  
   // ダークモードの状態を監視
   useEffect(() => {
     const checkDarkMode = () => {
@@ -69,7 +82,10 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: memoData.id })
+  } = useSortable({ 
+    id: memoData.id,
+    disabled: isEditing
+  })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -140,7 +156,7 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative p-8 ${isDragging ? 'z-50 opacity-50' : 'z-10'}`}
+      className={`relative p-8 ${isDragging && !isEditing ? 'z-50 opacity-50' : 'z-10'}`}
     >
       <motion.div
         ref={cardRef}
@@ -186,55 +202,127 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
           transition={{ type: "spring", stiffness: 100, damping: 15 }}
           whileTap={{ scale: 0.96 }}
         >
-          {/* スライムの顔 */}
-          <div className="absolute top-1/4 left-0 right-0 pointer-events-none z-20">
-            {/* 目 */}
-            <div className="flex justify-center gap-8 mb-4">
+          {/* スライムの顔 - 上半分に配置 */}
+          <div className="absolute pointer-events-none z-20" 
+               style={{ 
+                 top: `${faceVariation.eyeY}px`,
+                 left: '64px',
+                 right: '64px',
+                 display: 'flex',
+                 flexDirection: 'column',
+                 alignItems: 'center'
+               }}>
+            {/* 目 - くりくりおめめ */}
+            <div className="flex mb-3"
+                 style={{ gap: `${faceVariation.eyeGap}px` }}>
               <motion.div 
                 className="relative"
                 animate={{
-                  scaleY: isHovered ? 0.3 : 1,
+                  scaleY: isHovered ? 0.2 : 1,
                 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="w-6 h-8 bg-gray-800 dark:bg-gray-200 rounded-full">
-                  <motion.div 
-                    className="absolute top-2 left-2 w-2 h-2 bg-white dark:bg-gray-800 rounded-full"
-                    animate={{
-                      x: Math.sin(Date.now() * 0.001) * 2,
-                      y: Math.cos(Date.now() * 0.001) * 1,
-                    }}
-                  />
+                <div className="relative">
+                  {/* 目の外側（白目） */}
+                  <div className="bg-white rounded-full shadow-inner"
+                       style={{
+                         width: `${faceVariation.eyeSize}px`,
+                         height: `${faceVariation.eyeSize}px`,
+                         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.1)'
+                       }}>
+                    {/* 瞳 */}
+                    <motion.div 
+                      className="absolute top-1/2 left-1/2 bg-gray-900 rounded-full"
+                      style={{
+                        width: `${faceVariation.pupilSize}px`,
+                        height: `${faceVariation.pupilSize}px`,
+                        transform: 'translate(-50%, -50%)',
+                      }}
+                      animate={{
+                        x: Math.sin(Date.now() * 0.001) * 3,
+                        y: Math.cos(Date.now() * 0.001) * 2,
+                      }}
+                    >
+                      {/* 光の反射 */}
+                      <div className="absolute bg-white rounded-full" 
+                           style={{
+                             top: '15%',
+                             right: '15%',
+                             width: `${faceVariation.pupilSize * 0.3}px`,
+                             height: `${faceVariation.pupilSize * 0.3}px`,
+                           }} />
+                      <div className="absolute bg-white rounded-full opacity-70"
+                           style={{
+                             bottom: '20%',
+                             left: '20%',
+                             width: `${faceVariation.pupilSize * 0.15}px`,
+                             height: `${faceVariation.pupilSize * 0.15}px`,
+                           }} />
+                    </motion.div>
+                  </div>
                 </div>
               </motion.div>
               <motion.div 
                 className="relative"
                 animate={{
-                  scaleY: isHovered ? 0.3 : 1,
+                  scaleY: isHovered ? 0.2 : 1,
                 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="w-6 h-8 bg-gray-800 dark:bg-gray-200 rounded-full">
-                  <motion.div 
-                    className="absolute top-2 left-2 w-2 h-2 bg-white dark:bg-gray-800 rounded-full"
-                    animate={{
-                      x: Math.sin(Date.now() * 0.001) * 2,
-                      y: Math.cos(Date.now() * 0.001) * 1,
-                    }}
-                  />
+                <div className="relative">
+                  {/* 目の外側（白目） */}
+                  <div className="bg-white rounded-full shadow-inner"
+                       style={{
+                         width: `${faceVariation.eyeSize}px`,
+                         height: `${faceVariation.eyeSize}px`,
+                         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.1)'
+                       }}>
+                    {/* 瞳 */}
+                    <motion.div 
+                      className="absolute top-1/2 left-1/2 bg-gray-900 rounded-full"
+                      style={{
+                        width: `${faceVariation.pupilSize}px`,
+                        height: `${faceVariation.pupilSize}px`,
+                        transform: 'translate(-50%, -50%)',
+                      }}
+                      animate={{
+                        x: Math.sin(Date.now() * 0.001) * 3,
+                        y: Math.cos(Date.now() * 0.001) * 2,
+                      }}
+                    >
+                      {/* 光の反射 */}
+                      <div className="absolute bg-white rounded-full" 
+                           style={{
+                             top: '15%',
+                             right: '15%',
+                             width: `${faceVariation.pupilSize * 0.3}px`,
+                             height: `${faceVariation.pupilSize * 0.3}px`,
+                           }} />
+                      <div className="absolute bg-white rounded-full opacity-70"
+                           style={{
+                             bottom: '20%',
+                             left: '20%',
+                             width: `${faceVariation.pupilSize * 0.15}px`,
+                             height: `${faceVariation.pupilSize * 0.15}px`,
+                           }} />
+                    </motion.div>
+                  </div>
                 </div>
               </motion.div>
             </div>
             
-            {/* 口 */}
-            <div className="flex justify-center">
+            {/* 口 - への字 */}
+            <div>
               <motion.div 
-                className="w-12 h-3 bg-gray-800 dark:bg-gray-200 rounded-full"
-                animate={{
-                  scaleX: isHovered ? 1.5 : 1,
-                  scaleY: isHovered ? 2 : 1,
+                style={{
+                  width: `${faceVariation.mouthWidth}px`,
+                  height: `${faceVariation.mouthCurve}px`,
+                  borderBottom: '4px solid #1F2937',
+                  borderRadius: '0 0 50% 50%',
+                  transform: isHovered ? 'scaleX(1.2) scaleY(1.5)' : 'scaleX(1) scaleY(1)',
                 }}
                 transition={{ type: "spring", stiffness: 300 }}
+                className="dark:border-gray-200"
               />
             </div>
           </div>
@@ -326,7 +414,7 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
               bottom: '48px',
               left: '64px',
               right: '64px',
-              top: '50%', // 55%から50%に変更
+              top: '55%', // コンテンツを下半分に
               // 中央揃えを確実にするための追加スタイル
               display: 'flex',
               flexDirection: 'column',

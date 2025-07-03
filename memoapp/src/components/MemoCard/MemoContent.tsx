@@ -18,22 +18,29 @@ export const MemoContent = memo(({ title, content }: MemoContentProps) => {
       <h3 
         className="text-xl font-bold text-gray-800 dark:text-gray-100"
         style={{
-          marginBottom: '1rem',
+          marginBottom: '0.5rem',
           textAlign: 'center',
           width: '100%',
           display: 'block',
-          textShadow: 'none', // drop-shadowを削除
+          textShadow: 'none',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
         }}
       >
         {title || '無題'}
       </h3>
       
       <p 
-        className="text-gray-700 dark:text-gray-200 leading-relaxed line-clamp-3"
+        className="text-gray-700 dark:text-gray-200 leading-relaxed"
         style={{
           textAlign: 'left',
           width: '100%',
           whiteSpace: 'pre-wrap',
+          overflow: 'hidden',
+          display: '-webkit-box',
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: 'vertical',
         }}
       >
         {content}
