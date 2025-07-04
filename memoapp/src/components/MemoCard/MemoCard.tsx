@@ -18,7 +18,6 @@ import { COLOR_OPTIONS, ANIMATION_CONFIG } from '../../constants'
 import { MemoContent } from './MemoContent'
 import { MemoActions } from './MemoActions'
 import { MemoEditForm } from './MemoEditForm'
-import { MemoDetail } from './MemoDetail'
 import { useGestures } from '../../hooks/useGestures'
 
 interface MemoCardProps {
@@ -32,7 +31,6 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  const [showDetail, setShowDetail] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   
   // メモのIDから顔のバリエーションを生成
@@ -178,7 +176,7 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
           {...attributes}
           {...listeners}
           className="w-full h-[320px] cursor-pointer transition-all duration-300 relative overflow-visible"
-          onClick={() => !isEditing && setShowDetail(true)}
+          onClick={(e) => e.stopPropagation()}
           style={{
             '--memo-color': memoData.color,
             backgroundColor: 'var(--memo-color)',
@@ -471,22 +469,6 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
         />
       </motion.div>
       
-      {/* 詳細表示 */}
-      <MemoDetail 
-        memo={memoData}
-        isOpen={showDetail}
-        onClose={() => setShowDetail(false)}
-        onEdit={() => {
-          setShowDetail(false)
-          setIsEditing(true)
-        }}
-        onDelete={() => {
-          setShowDetail(false)
-          if (window.confirm('このメモを削除しますか？')) {
-            onDelete(memoData.id)
-          }
-        }}
-      />
     </div>
   )
 }))
