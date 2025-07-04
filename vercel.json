@@ -1,6 +1,5 @@
 {
-  "root": "memoapp",
-  "buildCommand": "npm install && npm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "cd memoapp && npm install && npm run build",
+  "outputDirectory": "memoapp/dist",
   "framework": "vite"
 }
