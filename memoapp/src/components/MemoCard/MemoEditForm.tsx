@@ -11,11 +11,28 @@ export const MemoEditForm = memo(({
   initialContent,
   initialColor, 
   onSave, 
-  onCancel 
+  onCancel,
+  onOpenLargeEdit
 }: MemoEditFormProps) => {
   const [title, setTitle] = useState(initialTitle)
   const [content, setContent] = useState(initialContent)
   const [color, setColor] = useState(initialColor)
+  
+  // SVG内かどうかを判定（ダークモード時）
+  const isInSVG = typeof window !== 'undefined' && document.documentElement.classList.contains('dark')
+  
+  // ダークモード時はTailwindクラスが効かないため、スタイルを完全にインライン化
+  const containerStyle = isInSVG ? {
+    backgroundColor: 'transparent',
+    padding: '16px 0',
+  } : {}
+  
+  const wrapperStyle = isInSVG ? {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: '16px',
+    padding: '24px',
+    boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.1)'
+  } : {}
 
   const handleSave = () => {
     onSave({ title, content, color })
@@ -34,7 +51,8 @@ export const MemoEditForm = memo(({
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="w-full max-w-sm mx-auto flex flex-col gap-3"
+      className="w-full flex flex-col gap-3"
+      onClick={(e) => e.stopPropagation()}
     >
       <input
         type="text"
@@ -67,6 +85,8 @@ export const MemoEditForm = memo(({
               boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)',
               border: 'none',
               transition: 'all 0.3s ease',
+              whiteSpace: 'nowrap',
+              minWidth: '0',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-2px)'
@@ -90,6 +110,8 @@ export const MemoEditForm = memo(({
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
               border: '1px solid rgba(0, 0, 0, 0.06)',
               transition: 'all 0.3s ease',
+              whiteSpace: 'nowrap',
+              minWidth: '0',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = 'rgba(229, 231, 235, 0.9)'
@@ -105,10 +127,41 @@ export const MemoEditForm = memo(({
             キャンセル
           </button>
         </div>
+
+        {/* 大画面で修正ボタン */}
+        {onOpenLargeEdit && (
+          <button
+            onClick={onOpenLargeEdit}
+            className="w-full font-bold"
+            style={{
+              padding: '0.75rem 1rem',
+              borderRadius: '9999px',
+              background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+              color: 'white',
+              boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)',
+              border: 'none',
+              transition: 'all 0.3s ease',
+              whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(139, 92, 246, 0.5)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.4)'
+            }}
+          >
+            大画面で修正
+          </button>
+        )}
         
         {/* 色選択（大きく、下に配置） */}
-        <div className="bg-white/90 rounded-2xl p-6 shadow-inner">
-          <p className="text-sm font-bold text-gray-700 mb-4 text-center">メモの色を選択</p>
+        <div style={{
+          backgroundColor: 'transparent',
+          padding: isInSVG ? '12px 0' : '6px 0',
+          marginTop: isInSVG ? '-8px' : '0'
+        }}>
           <div className="flex justify-center gap-4 flex-wrap">
             {COLOR_OPTIONS.map((option) => (
               <SimpleColorButton

@@ -22,14 +22,17 @@ export const SimpleColorButton = ({ color, isSelected, onClick, size = 'md', tit
         width: sizes[size].width,
         height: sizes[size].height,
         backgroundColor: color,
-        border: isSelected ? '4px solid #3B82F6' : '3px solid white',
+        border: isSelected ? '4px solid #3B82F6' : '3px solid #ffffff',
         borderRadius: '16px',
         cursor: 'pointer',
         position: 'relative',
         transition: 'all 0.3s ease',
         boxShadow: isSelected 
-          ? '0 0 0 3px white, 0 0 0 6px #3B82F6'
-          : '0 4px 15px rgba(0,0,0,0.15)',
+          ? '0 0 0 3px #ffffff, 0 0 0 6px #3B82F6'
+          : '0 2px 8px rgba(0,0,0,0.25)',
+        // SVG環境でも確実に表示されるようにする
+        display: 'inline-block',
+        verticalAlign: 'top'
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'scale(1.05)'
@@ -46,14 +49,14 @@ export const SimpleColorButton = ({ color, isSelected, onClick, size = 'md', tit
           transform: 'translate(-50%, -50%)',
           width: '24px',
           height: '24px',
-          backgroundColor: 'white',
+          backgroundColor: '#ffffff',
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
         }}>
-          <span style={{ color: '#3B82F6', fontWeight: 'bold' }}>✓</span>
+          <span style={{ color: '#3B82F6', fontWeight: 'bold', fontSize: '16px' }}>✓</span>
         </div>
       )}
     </div>
