@@ -1,8 +1,7 @@
 {
-  "framework": "vite",
-  "buildCommand": "npm ci && npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm ci",
+  "buildCommand": "cd memoapp && npm install && npm run build",
+  "outputDirectory": "memoapp/dist",
+  "installCommand": "cd memoapp && npm install",
   "rewrites": [
     {
       "source": "/(.*)",
