@@ -9,8 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npx vite build",
-    "prebuild": "npx vite --version",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
