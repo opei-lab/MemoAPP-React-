@@ -1,27 +1,10 @@
 import { useState, memo } from 'react'
 import { motion } from 'framer-motion'
+
 import { COLOR_OPTIONS } from '../../constants'
 import { SimpleColorButton } from '../SimpleColorButton'
-interface Memo {
-  id: string
-  user_id: string
-  title: string
-  content: string
-  color: string
-  position: number
-  created_at: string
-  updated_at: string
-}
 
-type MemoUpdate = Partial<Memo>
-
-interface MemoEditFormProps {
-  initialTitle: string
-  initialContent: string
-  initialColor: string
-  onSave: (updates: MemoUpdate) => void
-  onCancel: () => void
-}
+import type { MemoUpdate, MemoEditFormProps } from '../../types'
 
 export const MemoEditForm = memo(({ 
   initialTitle, 

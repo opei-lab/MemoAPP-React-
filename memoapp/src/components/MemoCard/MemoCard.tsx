@@ -2,33 +2,18 @@ import { useState, memo, forwardRef, useEffect, useRef, useMemo } from 'react'
 import { motion, useSpring, useTransform, useMotionValue, AnimatePresence } from 'framer-motion'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-interface Memo {
-  id: string
-  user_id: string
-  title: string
-  content: string
-  color: string
-  position: number
-  created_at: string
-  updated_at: string
-}
 
-type MemoUpdate = Partial<Memo>
 import { COLOR_OPTIONS, ANIMATION_CONFIG, Z_INDEX, COMMON_STYLES, SLIME_STYLES } from '../../constants'
 import { MemoContent } from './MemoContent'
 import { MemoActions } from './MemoActions'
 import { MemoEditForm } from './MemoEditForm'
 import { useGestures } from '../../hooks/useGestures'
+import { useTheme } from '../../contexts'
 
-interface MemoCardProps {
-  memo: Memo
-  onUpdate: (id: string, updates: MemoUpdate) => void
-  onDelete: (id: string) => void
-  index: number
-}
+import type { Memo, MemoUpdate, MemoCardProps } from '../../types'
 
 export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: memoData, onUpdate, onDelete, index }, ref) => {
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  const { isDarkMode } = useTheme()
   const [isEditing, setIsEditing] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -45,23 +30,6 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
       eyeY: 70 + (hash % 15), // 目の位置: 70-84 (上半分に)
     }
   }, [memoData.id])
-  
-  // ダークモードの状態を監視
-  useEffect(() => {
-    const checkDarkMode = () => {
-      setIsDarkMode(document.documentElement.classList.contains('dark'))
-    }
-    checkDarkMode()
-    
-    // MutationObserverでクラスの変更を監視
-    const observer = new MutationObserver(checkDarkMode)
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class']
-    })
-    
-    return () => observer.disconnect()
-  }, [])
   
   // ぷるんぷるんアニメーション用の状態
   const x = useMotionValue(0)

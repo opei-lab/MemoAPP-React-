@@ -1,9 +1,6 @@
 import { memo } from 'react'
 
-interface MemoContentProps {
-  title: string
-  content: string
-}
+import type { MemoContentProps } from '../../types'
 
 export const MemoContent = memo(({ title, content }: MemoContentProps) => {
   

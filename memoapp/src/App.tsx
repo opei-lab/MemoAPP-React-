@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import type { Session } from '@supabase/supabase-js'
+
 import { Auth } from './components/Auth'
 import { MemoBoard } from './components/MemoBoard/MemoBoard'
+import { ThemeProvider } from './contexts'
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -31,7 +33,11 @@ function App() {
     )
   }
 
-  return !session ? <Auth /> : <MemoBoard session={session} />
+  return (
+    <ThemeProvider>
+      {!session ? <Auth /> : <MemoBoard session={session} />}
+    </ThemeProvider>
+  )
 }
 
 export default App
