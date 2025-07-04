@@ -14,7 +14,7 @@ interface Memo {
 }
 
 type MemoUpdate = Partial<Memo>
-import { COLOR_OPTIONS, ANIMATION_CONFIG } from '../../constants'
+import { COLOR_OPTIONS, ANIMATION_CONFIG, Z_INDEX, COMMON_STYLES, SLIME_STYLES } from '../../constants'
 import { MemoContent } from './MemoContent'
 import { MemoActions } from './MemoActions'
 import { MemoEditForm } from './MemoEditForm'
@@ -153,13 +153,17 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      className={`relative p-8 ${isDragging && !isEditing ? 'z-50 opacity-50' : 'z-10'}`}
+      style={{
+        ...style,
+        position: 'relative',
+        zIndex: isDragging && !isEditing ? Z_INDEX.dragging : Z_INDEX.card
+      }}
+      className={`p-8 ${isDragging && !isEditing ? 'opacity-50' : ''}`}
     >
       <motion.div
         ref={cardRef}
-        className="relative"
         style={{
+          position: 'relative',
           rotateX: springX,
           rotateY: springY,
           transformStyle: 'preserve-3d',
@@ -175,9 +179,10 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
         <motion.div
           {...attributes}
           {...listeners}
-          className="w-full h-[320px] cursor-pointer transition-all duration-300 relative overflow-visible"
+          className="w-full h-[320px]"
           onClick={(e) => e.stopPropagation()}
           style={{
+            ...SLIME_STYLES.body,
             '--memo-color': memoData.color,
             backgroundColor: 'var(--memo-color)',
             backgroundImage: `
@@ -201,14 +206,12 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
           whileTap={{ scale: 0.96 }}
         >
           {/* スライムの顔 - 上半分に配置 */}
-          <div className="absolute pointer-events-none z-20" 
-               style={{ 
+          <div style={{ 
+                 ...SLIME_STYLES.faceContainer,
                  top: `${faceVariation.eyeY}px`,
                  left: '64px',
                  right: '64px',
-                 display: 'flex',
-                 flexDirection: 'column',
-                 alignItems: 'center'
+                 zIndex: Z_INDEX.cardFace
                }}>
             {/* 目 - くりくりおめめ */}
             <div className="flex mb-3"
@@ -374,7 +377,10 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
           </div>
           {/* 編集・削除ボタン */}
           {!isEditing && (
-            <div className="absolute top-3 left-3 flex gap-2 z-20">
+            <div style={{ 
+              ...SLIME_STYLES.buttonContainer,
+              zIndex: Z_INDEX.cardButton
+            }}>
               <motion.button
                 onClick={(e) => {
                   e.stopPropagation()
@@ -405,15 +411,12 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
           {/* コンテンツ */}
           <div 
             style={{
-              // classNameを完全に削除してstyleのみで制御
               position: 'absolute',
-              zIndex: 10,
-              // 固定位置を使用してTailwindクラスの影響を排除
+              zIndex: Z_INDEX.cardButton,
               bottom: '48px',
               left: '64px',
               right: '64px',
-              top: '55%', // コンテンツを下半分に
-              // 中央揃えを確実にするための追加スタイル
+              top: '55%',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -440,11 +443,12 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
 
         {/* 3Dシャドウエフェクト - スライムの重み */}
         <motion.div
-          className="absolute inset-x-2 bottom-0 h-6 -z-10"
+          className="absolute inset-x-2 bottom-0 h-6"
           style={{
             background: `radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 80%)`,
             filter: 'blur(16px)',
             transform: 'translateZ(-20px) scaleY(0.3)',
+            zIndex: -1,
           }}
           animate={{
             scaleX: isHovered ? 1.15 : 1,
@@ -454,13 +458,14 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
         
         {/* スライムの影 - ぷるんぷるんと連動 */}
         <motion.div
-          className="absolute inset-0 -z-20"
+          className="absolute inset-0"
           style={{
             background: memoData.color,
             filter: 'blur(40px)',
             opacity: 0.3,
             transform: 'translateZ(-80px) scale(0.85)',
             borderRadius: '60% 60% 20% 20% / 80% 80% 20% 20%',
+            zIndex: -2,
           }}
           animate={{
             scale: isHovered ? 0.9 : 0.85,
