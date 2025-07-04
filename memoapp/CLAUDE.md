@@ -81,3 +81,11 @@ src/
 2. **パフォーマンス**: Context APIによる状態管理の最適化
 3. **可読性**: 定数化とドキュメント整備による開発効率向上
 4. **拡張性**: 適切な分離により新機能追加が容易
+
+## デプロイメント
+Vercelへのデプロイ設定については[デプロイメントガイド](./docs/deployment-guide.md)を参照してください。
+
+### 重要な注意事項
+- vercel.jsonはリポジトリのルートに配置する
+- モノレポ構造のため、buildCommandで`cd memoapp`が必要
+- viteはdependenciesに含める（devDependenciesではない）
