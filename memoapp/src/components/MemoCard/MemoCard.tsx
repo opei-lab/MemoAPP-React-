@@ -89,9 +89,9 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
       style={{
         ...style,
         position: 'relative',
-        zIndex: isDragging && !isEditing ? Z_INDEX.dragging : Z_INDEX.card
+        zIndex: isDragging && !isMemoEditing ? Z_INDEX.dragging : Z_INDEX.card
       }}
-      className={`p-8 ${isDragging && !isEditing ? 'opacity-50' : ''}`}
+      className={`p-8 ${isDragging && !isMemoEditing ? 'opacity-50' : ''}`}
     >
       <motion.div
         ref={cardRef}

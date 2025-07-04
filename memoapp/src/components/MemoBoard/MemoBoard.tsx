@@ -46,6 +46,7 @@ import { DEFAULT_MEMO_COLOR, LAYOUT_CONFIG } from '../../constants'
 import { processMemosForDisplay } from '../../utils/memoUtils'
 import { useMemoOperations } from '../../hooks/useMemoOperations'
 import { useRealtimeSync } from '../../hooks/useRealtimeSync'
+import { MemoEditProvider } from '../../contexts'
 import { MemoCard } from '../MemoCard/MemoCard'
 import { Header } from '../Header/Header'
 import { MemoForm } from '../MemoForm'
@@ -356,9 +357,10 @@ export const MemoBoard = ({ session }: MemoBoardProps) => {
   }
 
   return (
-    <div className={`min-h-screen transition-all duration-500 ${state.darkMode ? 'dark' : ''}`}>
-      <ParticleBackground />
-      <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50/80 to-indigo-100/80 dark:from-gray-900/90 dark:to-gray-800/90 backdrop-blur-sm relative z-10">
+    <MemoEditProvider>
+      <div className={`min-h-screen transition-all duration-500 ${state.darkMode ? 'dark' : ''}`}>
+        <ParticleBackground />
+        <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50/80 to-indigo-100/80 dark:from-gray-900/90 dark:to-gray-800/90 backdrop-blur-sm relative z-10">
         <Header 
           session={session}
           sortBy={state.sortBy}
@@ -474,7 +476,8 @@ export const MemoBoard = ({ session }: MemoBoardProps) => {
         </div>
         
         {/* フローティングアクションボタンを削除 */}
+        </div>
       </div>
-    </div>
+    </MemoEditProvider>
   )
 }
