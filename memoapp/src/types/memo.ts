@@ -34,6 +34,8 @@ export interface MemoCardProps {
   memo: Memo
   onUpdate: (id: string, updates: MemoUpdate) => void
   onDelete: (id: string) => void
+  onView?: (memo: Memo) => void
+  onLargeEdit?: (memo: Memo) => void
   index: number
 }
 
@@ -54,4 +56,5 @@ export interface MemoEditFormProps {
   initialColor: string
   onSave: (updates: MemoUpdate) => void
   onCancel: () => void
+  onOpenLargeEdit?: () => void
 }

@@ -53,6 +53,8 @@ import { MemoForm } from '../MemoForm'
 import { TrashZone } from '../TrashZone'
 import { ParticleBackground } from '../ParticleBackground'
 import { FloatingActionButton } from '../FloatingActionButton'
+import { MemoViewModal } from '../MemoViewModal'
+import { MemoEditModal } from '../MemoEditModal'
 
 interface MemoBoardProps {
   session: Session
@@ -72,6 +74,8 @@ export const MemoBoard = ({ session }: MemoBoardProps) => {
   const [showMemoForm, setShowMemoForm] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [viewingMemo, setViewingMemo] = useState<Memo | null>(null)
+  const [editingMemo, setEditingMemo] = useState<Memo | null>(null)
 
   const memoOps = useMemoOperations(session.user.id)
   
@@ -464,6 +468,8 @@ export const MemoBoard = ({ session }: MemoBoardProps) => {
                       memo={memo}
                       onUpdate={handleUpdateMemo}
                       onDelete={handleMoveToTrash}
+                      onView={setViewingMemo}
+                      onLargeEdit={setEditingMemo}
                       index={index}
                     />
                   ))
@@ -477,6 +483,30 @@ export const MemoBoard = ({ session }: MemoBoardProps) => {
         
         {/* フローティングアクションボタンを削除 */}
         </div>
+        
+        {/* メモ閲覧モーダル */}
+        <AnimatePresence>
+          {viewingMemo && (
+            <MemoViewModal
+              memo={viewingMemo}
+              onClose={() => setViewingMemo(null)}
+            />
+          )}
+        </AnimatePresence>
+        
+        {/* 大画面編集モーダル */}
+        <AnimatePresence>
+          {editingMemo && (
+            <MemoEditModal
+              memo={editingMemo}
+              onSave={(updates) => {
+                handleUpdateMemo(editingMemo.id, updates)
+                setEditingMemo(null)
+              }}
+              onClose={() => setEditingMemo(null)}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </MemoEditProvider>
   )

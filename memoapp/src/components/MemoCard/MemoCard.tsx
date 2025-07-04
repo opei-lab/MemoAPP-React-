@@ -3,16 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-import { COLOR_OPTIONS, ANIMATION_CONFIG, Z_INDEX, COMMON_STYLES, SLIME_STYLES } from '../../constants'
+import { COLOR_OPTIONS, ANIMATION_CONFIG, Z_INDEX, COMMON_STYLES, SLIME_STYLES, BUTTON_STYLES } from '../../constants'
 import { MemoContent } from './MemoContent'
 import { MemoActions } from './MemoActions'
 import { MemoEditForm } from './MemoEditForm'
 import { SlimeFace } from './SlimeFace'
 import { SlimeEffects, SlimeShadows } from './SlimeEffects'
 import { SlimeShape } from './SlimeShape'
+import { StyledButton } from '../StyledButton'
 import { useGestures } from '../../hooks/useGestures'
 import { useSlimeAnimation } from '../../hooks/useSlimeAnimation'
 import { useTheme } from '../../contexts'
+import { getSlimeBorderRadius, getSlimeTransform, getSlimeFaceAnimation, getGhostPath, getWobbleIncrement, getWobbleDecrement, ANIMATION_CONFIGS } from '../../utils/animations'
 import type { Memo, MemoUpdate, MemoCardProps } from '../../types'
 
 export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: memoData, onUpdate, onDelete, onView, onLargeEdit, index }, ref) => {
@@ -73,7 +75,7 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
     let animationId: number
     if (isHovered) {
       const animate = () => {
-        setWobbleTime(prev => prev + 0.15)  // より速く
+        setWobbleTime(prev => prev + getWobbleIncrement())
         animationId = requestAnimationFrame(animate)
       }
       animationId = requestAnimationFrame(animate)
@@ -83,7 +85,7 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
         setWobbleTime(prev => {
           if (prev > 0) {
             animationId = requestAnimationFrame(animate)
-            return Math.max(0, prev - 0.3)
+            return Math.max(0, prev - getWobbleDecrement())
           }
           return 0
         })
@@ -175,20 +177,7 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
               </linearGradient>
             </defs>
             <motion.path
-              d={`M 160,30
-                   C 220,30 280,80 280,140
-                   L 280,240
-                   C 280,260 280,280 270,${290 + Math.sin(Date.now() * 0.003) * 10}
-                   Q 250,${300 + Math.cos(Date.now() * 0.004) * 8} 230,${295 + Math.sin(Date.now() * 0.002) * 12}
-                   T 190,${300 + Math.cos(Date.now() * 0.003) * 10}
-                   T 160,${295 + Math.sin(Date.now() * 0.004) * 8}
-                   T 130,${300 + Math.cos(Date.now() * 0.002) * 10}
-                   T 90,${295 + Math.sin(Date.now() * 0.003) * 12}
-                   Q 70,${300 + Math.cos(Date.now() * 0.004) * 8} 50,${290 + Math.sin(Date.now() * 0.002) * 10}
-                   C 40,280 40,260 40,240
-                   L 40,140
-                   C 40,80 100,30 160,30
-                   Z`}
+              d={getGhostPath(Date.now())}
               fill={`url(#ghost-gradient-${memoData.id})`}
               style={{
                 filter: 'url(#glow)',
@@ -212,35 +201,12 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
                     ...SLIME_STYLES.buttonContainer,
                     zIndex: Z_INDEX.cardButton
                   }}>
-                    <motion.button
+                    <StyledButton
+                      variant="round"
                       onPointerDown={(e) => e.stopPropagation()}
                       onClick={(e) => {
                         e.stopPropagation()
                         setIsEditing(true)
-                      }}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(4px)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                        border: 'none',
-                        cursor: 'pointer',
-                        padding: '0',
-                        flexShrink: 0,
-                        transition: 'background-color 0.2s',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.8)'
                       }}
                     >
                       <span style={{ 
@@ -252,38 +218,15 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
                         height: '14px',
                         textAlign: 'center'
                       }}>✏️</span>
-                    </motion.button>
-                    <motion.button
+                    </StyledButton>
+                    <StyledButton
+                      variant="round"
                       onPointerDown={(e) => e.stopPropagation()}
                       onClick={(e) => {
                         e.stopPropagation()
                         if (window.confirm('このメモを削除しますか？')) {
                           onDelete(memoData.id)
                         }
-                      }}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(4px)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                        border: 'none',
-                        cursor: 'pointer',
-                        padding: '0',
-                        flexShrink: 0,
-                        transition: 'background-color 0.2s',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.8)'
                       }}
                     >
                       <span style={{ 
@@ -295,7 +238,7 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
                         height: '14px',
                         textAlign: 'center'
                       }}>🗑️</span>
-                    </motion.button>
+                    </StyledButton>
                   </div>
                 )}
 
@@ -356,31 +299,18 @@ export const MemoCard = memo(forwardRef<HTMLDivElement, MemoCardProps>(({ memo: 
                 0 15px 30px -8px var(--memo-color)
               `,
               filter: 'none',
-              transform: isHovered 
-                ? `translateZ(50px) scale(${1 + Math.sin(wobbleTime * 2) * 0.05}) translateX(${Math.sin(wobbleTime * 1.5) * 8}px) translateY(${Math.cos(wobbleTime * 1.8) * 5}px) rotateZ(${Math.sin(wobbleTime * 0.8) * 3}deg)`
-                : 'translateZ(50px)',
+              transform: getSlimeTransform(wobbleTime, isHovered),
             } as React.CSSProperties}
             animate={{
-              borderRadius: isHovered 
-                ? `${60 + Math.sin(wobbleTime) * 20}% ${60 + Math.cos(wobbleTime * 1.2) * 20}% ${20 + Math.sin(wobbleTime * 0.8) * 15}% ${20 + Math.cos(wobbleTime * 0.9) * 15}% / ${80 + Math.sin(wobbleTime * 1.1) * 15}% ${80 + Math.cos(wobbleTime * 0.7) * 15}% ${20 + Math.sin(wobbleTime * 1.3) * 10}% ${20 + Math.cos(wobbleTime * 0.6) * 10}%`
-                : '60% 60% 20% 20% / 80% 80% 20% 20%',
+              borderRadius: getSlimeBorderRadius(wobbleTime, isHovered),
             }}
-            transition={{ 
-              type: "spring", 
-              stiffness: 40, 
-              damping: 15,
-              mass: 1.2
-            }}
+            transition={ANIMATION_CONFIGS.slimeJelly}
             whileTap={{ scale: 0.96 }}
           >
           {/* スライムの顔 */}
           <motion.div
-            animate={{
-              x: isHovered ? Math.sin(wobbleTime * 2.5) * 3 : 0,
-              y: isHovered ? Math.cos(wobbleTime * 2) * 2 : 0,
-              rotate: isHovered ? Math.sin(wobbleTime * 1.5) * 1 : 0
-            }}
-            transition={{ type: "spring", stiffness: 200, damping: 10 }}
+            animate={getSlimeFaceAnimation(wobbleTime, isHovered)}
+            transition={ANIMATION_CONFIGS.faceMovement}
           >
             <SlimeFace faceVariation={faceVariation} isHovered={isHovered} />
           </motion.div>

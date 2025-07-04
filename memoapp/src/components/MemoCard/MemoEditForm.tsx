@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 
 import { COLOR_OPTIONS } from '../../constants'
 import { SimpleColorButton } from '../SimpleColorButton'
+import { StyledButton } from '../StyledButton'
 
 import type { MemoUpdate, MemoEditFormProps } from '../../types'
 
@@ -74,86 +75,31 @@ export const MemoEditForm = memo(({
       
       <div className="space-y-3">
         <div className="flex gap-2">
-          <button
+          <StyledButton
+            variant="primary"
             onClick={handleSave}
             className="flex-1 font-bold"
-            style={{
-              padding: '0.75rem 1rem',
-              borderRadius: '9999px',
-              background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
-              color: 'white',
-              boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)',
-              border: 'none',
-              transition: 'all 0.3s ease',
-              whiteSpace: 'nowrap',
-              minWidth: '0',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.5)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.4)'
-            }}
           >
             保存する
-          </button>
-          <button
+          </StyledButton>
+          <StyledButton
+            variant="secondary"
             onClick={onCancel}
             className="font-bold"
-            style={{
-              padding: '0.75rem 1.5rem',
-              borderRadius: '9999px',
-              backgroundColor: 'rgba(243, 244, 246, 0.9)',
-              color: '#374151',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-              border: '1px solid rgba(0, 0, 0, 0.06)',
-              transition: 'all 0.3s ease',
-              whiteSpace: 'nowrap',
-              minWidth: '0',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(229, 231, 235, 0.9)'
-              e.currentTarget.style.transform = 'translateY(-1px)'
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(243, 244, 246, 0.9)'
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)'
-            }}
           >
             キャンセル
-          </button>
+          </StyledButton>
         </div>
 
         {/* 大画面で修正ボタン */}
         {onOpenLargeEdit && (
-          <button
+          <StyledButton
+            variant="purple"
             onClick={onOpenLargeEdit}
             className="w-full font-bold"
-            style={{
-              padding: '0.75rem 1rem',
-              borderRadius: '9999px',
-              background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
-              color: 'white',
-              boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)',
-              border: 'none',
-              transition: 'all 0.3s ease',
-              whiteSpace: 'nowrap',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(139, 92, 246, 0.5)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.4)'
-            }}
           >
             大画面で修正
-          </button>
+          </StyledButton>
         )}
         
         {/* 色選択（大きく、下に配置） */}

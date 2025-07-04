@@ -1,9 +1,11 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
 import { SearchBar } from '../SearchBar'
 import { SimpleColorButton } from '../SimpleColorButton'
+import { getGreeting, getSimpleDisplayName } from '../../utils/userUtils'
+import { SimpleProfileModal } from '../SimpleProfileModal'
 type SortBy = 'created_at' | 'color' | 'position'
 type FilterColor = string | null
 import { COLOR_OPTIONS } from '../../constants'
@@ -49,21 +51,24 @@ export const Header = memo(({
   setSearchQuery,
   searchResultCount
 }: HeaderProps) => {
+  const [showProfileSettings, setShowProfileSettings] = useState(false)
+  
   const handleSignOut = async () => {
     await supabase.auth.signOut()
   }
 
   return (
+    <>
     <header className="fixed left-0 right-0 w-full z-50 shadow-lg bg-white/95 dark:bg-gray-900/95"
             style={{
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
             }}>
-      <div className="relative w-full py-4" style={{ paddingLeft: '2rem', paddingRight: '2rem' }}>
-        {/* 第1行：ロゴとメイン操作 */}
+      <div className="relative w-full py-3" style={{ paddingLeft: '2rem', paddingRight: '2rem' }}>
+        {/* 第1行：ロゴ、ユーザー情報、メイン操作 */}
         <div className="flex items-center justify-between mb-3">
-          {/* ロゴ */}
-          <div className="flex items-center gap-3">
+          {/* ロゴとユーザー情報 */}
+          <div className="flex items-center gap-4">
             <h1 className="text-5xl font-black"
                 style={{ 
                   fontFamily: "'M PLUS Rounded 1c', sans-serif",
@@ -76,6 +81,9 @@ export const Header = memo(({
                 }}>
               ぷるんぷるんメモ
             </h1>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              👋 {getGreeting()}、{getSimpleDisplayName(session.user.email || '', session.user.id)}
+            </span>
           </div>
           
           {/* メイン操作 */}
@@ -150,6 +158,25 @@ export const Header = memo(({
               </motion.span>
             </motion.button>
             
+            {/* 設定ボタン */}
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowProfileSettings(true)}
+              className="text-white rounded-full text-sm font-bold hover:from-purple-500 hover:to-pink-500 transform hover:scale-110 transition-all duration-200 shadow-lg hover:shadow-xl"
+              style={{
+                background: 'linear-gradient(45deg, #a855f7, #ec4899)',
+                boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)',
+                paddingLeft: '1rem',
+                paddingRight: '1rem',
+                paddingTop: '0.5rem',
+                paddingBottom: '0.5rem',
+                border: 'none'
+              }}
+            >
+              ⚙️ 設定
+            </motion.button>
+            
             {/* ログアウト */}
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -180,7 +207,7 @@ export const Header = memo(({
         </div>
         
         {/* 第2行：検索とソート */}
-        <div className="flex items-center gap-4 mb-3" style={{ flexWrap: 'nowrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', marginBottom: '0.75rem', flexWrap: 'nowrap' }}>
           {/* 検索バー */}
           <SearchBar 
             value={searchQuery}
@@ -188,37 +215,36 @@ export const Header = memo(({
             resultCount={searchResultCount}
           />
           {/* ソート */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600 dark:text-gray-400">並び順:</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortBy)}
-              className="text-sm font-medium"
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '9999px',
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                color: '#374151',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-                border: '1px solid rgba(0, 0, 0, 0.06)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                cursor: 'pointer',
-                outline: 'none',
-                appearance: 'none',
-                paddingRight: '2rem',
-                backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 0.5rem center',
-                backgroundSize: '1.2rem',
-              }}
-            >
-              {sortOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortBy)}
+                className="text-sm font-medium"
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '9999px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  color: '#374151',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                  border: '1px solid rgba(0, 0, 0, 0.06)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  appearance: 'none',
+                  paddingRight: '2rem',
+                  backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 0.5rem center',
+                  backgroundSize: '1.2rem',
+                }}
+              >
+                {sortOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             {sortBy === 'position' && (
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 (ドラッグ&ドロップで並び替え可能)
@@ -233,9 +259,8 @@ export const Header = memo(({
           
         </div>
         
-        {/* 第3行：色フィルター */}
-        <div className="flex items-center gap-2" style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
-            <label className="text-sm text-gray-600 dark:text-gray-400">色:</label>
+        {/* 第3行：色フィルターと新しいメモボタン */}
+        <div className="flex items-center justify-between" style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
             <div className="flex gap-1">
               {/* すべて表示ボタン */}
               <div
@@ -300,56 +325,59 @@ export const Header = memo(({
                 />
               ))}
             </div>
+            
+            {/* 新しいメモボタン */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onNewMemo}
+              className="font-medium"
+              style={{
+                padding: '0.75rem 1.5rem',
+                borderRadius: '9999px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+                border: 'none',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.5)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <span style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>+</span>
+              新しいメモ
+            </motion.button>
           </div>
-        </div>
         
-        {/* 第4行：新しいメモボタンとゴミ箱ボタン */}
-        <div className="flex items-center gap-4 mt-2" style={{ paddingLeft: '2rem', paddingRight: '2rem' }}>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onNewMemo}
-            className="font-medium"
-            style={{
-              padding: '0.75rem 1.5rem',
-              borderRadius: '9999px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
-              border: 'none',
-              transition: 'all 0.3s ease',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.5)'
-              e.currentTarget.style.transform = 'translateY(-2px)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)'
-              e.currentTarget.style.transform = 'translateY(0)'
-            }}
-          >
-            <span style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>+</span>
-            新しいメモ
-          </motion.button>
-          
-          {/* ゴミ箱を空にするボタン */}
-          {showTrash && trashCount > 0 && (
+        {/* ゴミ箱を空にするボタン */}
+        {showTrash && trashCount > 0 && (
+          <div className="mt-2" style={{ paddingLeft: '2rem', paddingRight: '2rem' }}>
             <button
               onClick={onEmptyTrash}
               className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-sm rounded shadow"
             >
               ゴミ箱を空にする
             </button>
-          )}
-        </div>
-        
-        {/* ユーザー情報 */}
-        <div className="mt-2 text-sm text-gray-600 dark:text-gray-400" style={{ paddingLeft: '2rem', paddingRight: '2rem' }}>
-          👋 こんにちは、{session.user.email}
-        </div>
+          </div>
+        )}
+      </div>
     </header>
+    
+    {showProfileSettings && (
+      <SimpleProfileModal 
+        session={session}
+        onClose={() => setShowProfileSettings(false)}
+      />
+    )}
+    </>
   )
 })

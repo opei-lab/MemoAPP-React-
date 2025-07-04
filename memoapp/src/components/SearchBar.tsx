@@ -28,7 +28,7 @@ export const SearchBar = ({ value, onChange, resultCount }: SearchBarProps) => {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       className="relative transition-all"
-      style={{ width: '400px' }}
+      style={{ width: '450px' }}
     >
       <div className="relative">
         <input
